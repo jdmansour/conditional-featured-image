@@ -35,6 +35,11 @@ if ( ! class_exists( 'Cybocfi_Frontend' ) ) {
 		private $post_id;
 
 		/**
+		 * The currently processed query
+		 */
+		private $query;
+
+		/**
 		 * Starting point of the magic
 		 */
 		public function run() {
@@ -110,7 +115,7 @@ if ( ! class_exists( 'Cybocfi_Frontend' ) ) {
 		 * @since 2.13.0
 		 */
 		public function featured_image_block( $block_content ) {
-			if ( is_singular() && is_main_query() && $this->is_image_marked_hidden( get_the_ID() ) ) {
+			if ( $this->query->is_singular() && $this->query->is_main_query() && $this->is_image_marked_hidden( get_the_ID() ) ) {
 				return '';
 			}
 
@@ -158,14 +163,16 @@ if ( ! class_exists( 'Cybocfi_Frontend' ) ) {
 		 * Hide the featured image on single posts where the corresponding flag
 		 * was set in the backend.
 		 */
-		public function set_visibility() {
+		public function set_visibility( $query ) {
 			/**
 			 * Remove the filters, if it's not the main query. This is the case,
 			 * if the current query is executed after the main query.
 			 *
 			 * @since 2.5.1
 			 */
-			if ( ! is_main_query() ) {
+			$this->query = $query;
+			
+			if ( ! $this->query->is_main_query() ) {
 				$this->remove_featured_image_filter();
 
 				return;
